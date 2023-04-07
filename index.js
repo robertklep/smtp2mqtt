@@ -8,6 +8,7 @@ const YAML                 = require('yaml');
 const SMTPServer           = require('smtp-server').SMTPServer;
 const simpleParser         = require('mailparser').simpleParser;
 const debug                = require('debug')('smtp2mqtt');
+const debugParsed          = require('debug')('smtp2mqtt:parsed');
 
 void async function() {
   // read config file
@@ -45,9 +46,9 @@ void async function() {
   // Start SMTP server
   new SMTPServer({
     name:              config.smtp.name ?? 'SMTP2MQTT',
+    size:              config.smtp.size ?? 1024,
     allowInsecureAuth: true,
     disabledCommands:  [ 'STARTTLS' ],
-    //  size: 1000000,
     onConnect(session, callback) {
       debug(`onConnect — address=${ session.remoteAddress } session=${ session.id }`);
       return callback();
@@ -69,7 +70,8 @@ void async function() {
         // convert Map to Object for jsonpath
         parsed.headers = Object.fromEntries(parsed.headers)
 
-        //        console.log('%j', parsed);
+        // output parsed message as JSON for debugging
+        debugParsed('%j', parsed);
 
         // process fields
         const fields = Object.entries(config.smtp.fields || {}).reduce((acc, [ fieldName, fieldValue ]) => {
@@ -109,5 +111,5 @@ void async function() {
       }
       return callback();
     }
-  }).listen(12345, '0.0.0.0');
+  }).listen(config.smtp.port || 2525, '0.0.0.0');
 }();

@@ -1,0 +1,20 @@
+# Example configuration file for SMTP2MQTT
+# https://github.com/robertklep/smtp2mqtt
+#
+# Lines that are commented out are optional and their default value is shown.
+
+# MQTT broker configuration
+mqtt:
+  hostname: 192.168.23.2
+  # port: 1883
+  # base_topic: smtp2mqtt
+  # username:
+  # password:
+
+# SMTP server configuration
+smtp:
+  # name: 'SMTP2MQTT'
+  # port: 2525
+  # size: 1024         # maximum allowed message size in bytes
+  fields:
+    # see README.md — Field Parser
