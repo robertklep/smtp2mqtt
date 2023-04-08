@@ -6,6 +6,29 @@ Most of these cameras can send e-mail when they detect certain events (motion, p
 
 Since every brand of camera will send differently worded/layed-out e-mails, you're able to select specific parts of the e-mail (To/From/Subject/Body, etc) and transform them in any way you like.
 
+## Installing and running
+
+```shell
+# clone repository
+$ git clone https://github.com/robertklep/smtp2mqtt
+$ cd smtp2mqtt
+
+# create a configuration file from the provided example
+$ cp config.example.yml config.yml
+$ vi config.yml
+
+# (optional) edit docker-compose.yml
+$ vi docker-compose.yml
+
+# create Docker image
+$ docker-compose build
+
+# start Docker container in detached mode
+$ docker-compose up -d
+```
+
+For the first run and/or to test the configuration, enable the `DEBUG` environment variable in `docker-compose.yml` and run the container in attached mode (by not using `-d`).
+
 ## MQTT topics
 
 MQTT topics used (assuming the default `smtp2mqtt` prefix):

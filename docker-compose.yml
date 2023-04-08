@@ -1,0 +1,16 @@
+version: '3'
+services:
+  smtp2mqtt:
+    build: .
+    container_name: SMTP2MQTT
+    # A configuration file is required.
+    # See config.example.yml for an example.
+    volumes:
+      - ./config.yml:/app/config.yml
+    # Make sure that the internal port (the second '2525') matches
+    # the configured port if you change it from the default.
+    ports:
+      - 2525:2525
+    # Optional debugging.
+    # environment:
+    #  DEBUG: smtp2mqtt
