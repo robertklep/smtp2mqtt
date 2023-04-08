@@ -41,7 +41,7 @@ void async function() {
   debug(`connected to MQTT server`);
 
   // set connection state to LWT topic
-  await mqtt.publish(join(baseTopic, 'status'), 'online');
+  await mqtt.publish(join(baseTopic, 'status'), 'online', { retain : true });
 
   // Start SMTP server
   new SMTPServer({
