@@ -78,10 +78,10 @@ void async function() {
           let value;
           if (typeof fieldValue === 'object') {
             if (fieldValue.query) {
-              value = jsonpath.query(parsed, fieldValue.query)[0];
+              value = jsonpath.query(parsed, fieldValue.query);
             }
             if (fieldValue.xfrm) {
-              const ctx = { message : parsed, value : value };
+              const ctx = { message : parsed, value : fieldValue.value == true ? JSON.stringify(value) : String(value) };
               try {
                 value = vm.runInNewContext(fieldValue.xfrm, ctx);
               } catch(e) {
@@ -90,9 +90,9 @@ void async function() {
               }
             }
           } else {
-            value = jsonpath.query(parsed, fieldValue)[0];
+            value = jsonpath.query(parsed, fieldValue);
           }
-          acc[fieldName] = value;
+          acc[fieldName] = fieldValue.json == true ? JSON.stringify(Array.isArray(value) && value.length === 1 ? value[0] : value) : String(value);
           return acc;
         }, {});
 

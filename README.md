@@ -65,19 +65,23 @@ smtp:
     $event:
       query: '$.subject'
       xfrm: 'value.split(" ")[0]?.toLowerCase()'
+    timestamp:
+      xfrm: 'Date.now()'
 ```
 
 Explanation:
 * `email_subject` is the name of a field you want to extract. You're free to pick the names of your fields, but fields whose name starts with `$` are special (see below). Make sure to properly YAML-escape the names if required. It's not recommended to use forward slashes (`/`) in field names.
 * `'$.subject'` is a [JSONPath](https://goessner.net/articles/JsonPath/index.html) query. Here, a property by the name of `subject` is extracted from the "root object" (denoted as `$`). Internally, e-mail messages are parsed and converted to a Javascript object. This object is then queried using JSONPath. See below for an example object from a parsed message.
 * `$source` and `$event` are special fields (see below).
-* Instead of passing a JSONPath query as a string, a field value can also be extracted as a combination of a JSONPath query (`query`) and a Javascript-based transform expression (`xfrm`). In this example, the parser will first extract the value of the e-mail subject, then (using the transform expression) extract the first word from the subject, lowercase it, and assign it to the `$event` field, for example if your camera sends messages with subject like _"Person Detected at 2023/4/5 09:10:11"_ (in which case the extracted value for `$event` will be `person`).
+* Instead of passing a JSONPath query as a string, a field value can also be extracted as a combination of a JSONPath query (`query`) and a Javascript-based transform expression (`xfrm`). In this example, the parser will first extract the value of the e-mail subject, then (using the transform expression) extract the first word from the subject, lowercase it, and assign it to the `$event` field, for example if your camera sends messages with subject like _"Person Detected at 2023/4/5 09:10:11"_ (in which case the extracted value for `$event` will be `person`). The value is available in the expression as a variable named `value`.
+* The `timestamp` field uses just a transform expression to dynamically create a value, in this case a timestamp. Since it doesn't depend on a JSONPath query value, the `query` property can be omitted.
 
 With the above fields, and the example parsed e-mail document below, the following MQTT messages will be published:
 ```
 smtp2mqtt/sources/My Camera/events/person         true
 smtp2mqtt/sources/My Camera/fields/email_subject  Person Detected by My Camera at 2023/1/4 09:10:11
 smtp2mqtt/sources/My Camera/fields/email_body     A person was detected by camera "My Camera"!
+smtp2mqtt/sources/My Camera/fields/timestamp      1672819811000
 ```
 
 ### Special fields
@@ -91,6 +95,18 @@ Special fields:
 Both fields are not required to be configured, but it's highly recommended to at least configure `$source`. If not, the username that was used to log in on the SMTP server is used. Some cameras only allow e-mail addresses to be configured as usernames, which means that unless you configure an alternative source, messages will be published to `smtp2mqtt/sources/username@example.com/#`, which isn't ideal.
 
 If the `$event` field is not configured, no events will be published to MQTT, only regular fields.
+
+### JSON values
+
+Since MQTT only deals with strings, field values are stringified using `String(value)`.
+
+If you prefer JSON, you can configure this per field:
+```
+fields:
+    email_subject:
+      query: '$.subject'
+      json: true
+```
 
 ## Parsed message object example
 
